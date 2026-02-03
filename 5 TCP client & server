@@ -1,0 +1,82 @@
+--------TCP CLIENT--------
+import java.net.*;
+import java.io.*;
+
+public class TCPClient {
+
+    public static void main(String[] args) throws Exception {
+
+        Socket sock = new Socket("localhost", 3300);
+
+        BufferedReader keyboard =
+                new BufferedReader(new InputStreamReader(System.in));
+
+        PrintWriter out =
+                new PrintWriter(sock.getOutputStream(), true);
+
+        BufferedReader in =
+                new BufferedReader(new InputStreamReader(sock.getInputStream()));
+
+        System.out.print("Enter file name: ");
+        String fname = keyboard.readLine();
+
+        // send filename to server
+        out.println(fname);
+
+        String line;
+
+        // receive file content
+        while ((line = in.readLine()) != null) {
+            System.out.println(line);
+        }
+
+        sock.close();
+    }
+}
+
+--------TCP SERVER--------
+import java.net.*;
+import java.io.*;
+
+public class TCPServer {
+
+    public static void main(String[] args) throws Exception {
+
+        ServerSocket server = new ServerSocket(3300);
+        System.out.println("Server waiting...");
+
+        Socket sock = server.accept();
+        System.out.println("Client connected");
+
+        BufferedReader in =
+                new BufferedReader(new InputStreamReader(sock.getInputStream()));
+
+        PrintWriter out =
+                new PrintWriter(sock.getOutputStream(), true);
+
+        String fname = in.readLine();
+
+        File file = new File(fname);
+
+        // check file exists
+        if (!file.exists()) {
+            out.println("File not found");
+        }
+        else {
+            BufferedReader fileReader =
+                    new BufferedReader(new FileReader(file));
+
+            String line;
+
+            while ((line = fileReader.readLine()) != null) {
+                out.println(line);
+            }
+
+            fileReader.close();
+        }
+
+        sock.close();
+        server.close();
+    }
+}
+
