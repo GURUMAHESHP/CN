@@ -1,0 +1,56 @@
+import java.util.*;
+
+class RED {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        Random rand = new Random();
+
+        System.out.print("Min threshold: ");
+        int min = sc.nextInt();
+
+        System.out.print("Max threshold: ");
+        int max = sc.nextInt();
+
+        System.out.print("Max drop probability (0-1): ");
+        double maxProb = sc.nextDouble();
+
+        System.out.print("Queue size: ");
+        int capacity = sc.nextInt();
+
+        System.out.print("Number of packets: ");
+        int n = sc.nextInt();
+
+        int queue = 0;
+
+        System.out.println("\nPacket\tQueue\tStatus");
+
+        for (int i = 1; i <= n; i++) {
+
+            if (queue >= capacity) {
+                System.out.println(i + "\t" + queue + "\tDropped (Full)");
+                continue;
+            }
+
+            double dropProb = 0;
+
+            // RED logic
+            if (queue < min)
+                dropProb = 0;
+            else if (queue >= max)
+                dropProb = 1;
+            else
+                dropProb = maxProb * (queue - min) / (double)(max - min);
+
+            if (rand.nextDouble() < dropProb) {
+                System.out.println(i + "\t" + queue + "\tDropped (RED)");
+            } else {
+                queue++;
+                System.out.println(i + "\t" + queue + "\tAccepted");
+            }
+        }
+
+        sc.close();
+    }
+}
