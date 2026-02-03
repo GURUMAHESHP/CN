@@ -1,0 +1,78 @@
+import java.util.*;
+
+public class Lab3Crc {
+
+    // Function to perform XOR division
+    static String divide(String data, String key) {
+
+        int m = key.length();
+        char[] temp = data.toCharArray();
+
+        for (int i = 0; i <= data.length() - m; i++) {
+
+            // perform XOR only if first bit is 1
+            if (temp[i] == '1') {
+                for (int j = 0; j < m; j++) {
+
+                    // XOR operation
+                    if (temp[i + j] == key.charAt(j))
+                        temp[i + j] = '0';
+                    else
+                        temp[i + j] = '1';
+                }
+            }
+        }
+
+        // remainder = last (m-1) bits
+        return new String(temp).substring(data.length() - m + 1);
+    }
+
+    // Encode function
+    static String encode(String data, String key) {
+
+        String appendedData = data + "0".repeat(key.length() - 1);
+
+        String remainder = divide(appendedData, key);
+
+        return data + remainder;
+    }
+
+    // Decode function
+    static boolean hasError(String received, String key) {
+
+        String remainder = divide(received, key);
+
+        // if remainder contains 1 → error
+        for (char c : remainder.toCharArray()) {
+            if (c == '1')
+                return true;
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter binary key (CRC-16): ");
+        String key = sc.next();
+
+        System.out.print("Enter binary data: ");
+        String data = sc.next();
+
+        // Encoding
+        String encoded = encode(data, key);
+        System.out.println("Encoded Data: " + encoded);
+
+        // Decoding
+        System.out.print("Enter received data: ");
+        String received = sc.next();
+
+        if (hasError(received, key))
+            System.out.println("Error detected in data");
+        else
+            System.out.println("Data is error free");
+
+        sc.close();
+    }
+}
