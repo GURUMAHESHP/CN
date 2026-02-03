@@ -1,0 +1,58 @@
+import java.math.BigInteger;
+import java.util.*;
+
+class Lab7RSA {
+
+    BigInteger p, q, n, phi, e, d;
+
+    // generate keys
+    void generateKeys() {
+
+        Random r = new Random();
+
+        p = BigInteger.probablePrime(16, r);
+        q = BigInteger.probablePrime(16, r);
+
+        n = p.multiply(q);
+
+        phi = p.subtract(BigInteger.ONE)
+               .multiply(q.subtract(BigInteger.ONE));
+
+        // fixed public key (easy)
+        e = new BigInteger("65537");
+
+        // private key
+        d = e.modInverse(phi);
+    }
+
+    // encryption
+    BigInteger encrypt(BigInteger m) {
+        return m.modPow(e, n);
+    }
+
+    // decryption
+    BigInteger decrypt(BigInteger c) {
+        return c.modPow(d, n);
+    }
+
+    public static void main(String[] args) {
+
+        Lab7RSA rsa = new Lab7RSA();
+        rsa.generateKeys();
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter message: ");
+        String msg = sc.nextLine();
+
+        BigInteger m = new BigInteger(msg.getBytes());
+
+        BigInteger cipher = rsa.encrypt(m);
+        System.out.println("Encrypted: " + cipher);
+
+        BigInteger plain = rsa.decrypt(cipher);
+        System.out.println("Decrypted: " + new String(plain.toByteArray()));
+
+        sc.close();
+    }
+}
