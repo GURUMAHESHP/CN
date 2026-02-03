@@ -2,59 +2,55 @@ import java.util.*;
 
 public class Lab3Crc {
 
-    // Function to perform XOR division
-    static String divide(String data, String key) {
+    // CRC division using XOR
+    public static String divide(char[] dividend, char[] divisor) {
 
-        int m = key.length();
-        char[] temp = data.toCharArray();
+        int n = dividend.length;
+        int m = divisor.length;
 
-        for (int i = 0; i <= data.length() - m; i++) {
+        // perform division only till n-m
+        for (int i = 0; i <= n - m; i++) {
 
-            // perform XOR only if first bit is 1
-            if (temp[i] == '1') {
+            if (dividend[i] == '1') {
+
                 for (int j = 0; j < m; j++) {
 
                     // XOR operation
-                    if (temp[i + j] == key.charAt(j))
-                        temp[i + j] = '0';
+                    if (dividend[i + j] == divisor[j])
+                        dividend[i + j] = '0';
                     else
-                        temp[i + j] = '1';
+                        dividend[i + j] = '1';
                 }
             }
         }
 
-        // remainder = last (m-1) bits
-        return new String(temp).substring(data.length() - m + 1);
+        // return remainder
+        return new String(dividend).substring(n - m + 1);
     }
 
-    // Encode function
-    static String encode(String data, String key) {
+    // Encode data
+    public static String encode(String data, String key) {
 
-        String appendedData = data + "0".repeat(key.length() - 1);
+        String appended = data + "0".repeat(key.length() - 1);
 
-        String remainder = divide(appendedData, key);
+        String remainder = divide(appended.toCharArray(), key.toCharArray());
 
         return data + remainder;
     }
 
-    // Decode function
-    static boolean hasError(String received, String key) {
+    // Check error
+    public static boolean hasError(String received, String key) {
 
-        String remainder = divide(received, key);
+        String remainder = divide(received.toCharArray(), key.toCharArray());
 
-        // if remainder contains 1 → error
-        for (char c : remainder.toCharArray()) {
-            if (c == '1')
-                return true;
-        }
-        return false;
+        return remainder.contains("1"); // true means error
     }
 
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
 
-        System.out.print("Enter binary key (CRC-16): ");
+        System.out.print("Enter binary key: ");
         String key = sc.next();
 
         System.out.print("Enter binary data: ");
@@ -62,14 +58,14 @@ public class Lab3Crc {
 
         // Encoding
         String encoded = encode(data, key);
-        System.out.println("Encoded Data: " + encoded);
+        System.out.println("Encoded data: " + encoded);
 
         // Decoding
         System.out.print("Enter received data: ");
         String received = sc.next();
 
         if (hasError(received, key))
-            System.out.println("Error detected in data");
+            System.out.println("Error in the data");
         else
             System.out.println("Data is error free");
 
