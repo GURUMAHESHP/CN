@@ -1,0 +1,66 @@
+# Create simulator
+set ns [new Simulator]
+
+# Trace files
+set tr [open lab10.tr w]
+$ns trace-all $tr
+
+set nam [open lab10.nam w]
+$ns namtrace-all $nam
+
+
+# Finish procedure
+proc finish {} {
+    global ns tr nam
+
+    $ns flush-trace
+    close $tr
+    close $nam
+
+    exec nam lab10.nam &
+    exec grep -c "^d" lab10.tr &
+
+    exit 0
+}
+
+
+# Create 3 nodes
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+
+
+# Duplex links (change bandwidth to observe drops)
+$ns duplex-link $n0 $n1 1Mb 10ms DropTail
+$ns duplex-link $n1 $n2 1Mb 10ms DropTail
+
+
+# Queue size
+$ns queue-limit $n0 $n1 10
+$ns queue-limit $n1 $n2 10
+
+
+# TCP connection
+set tcp [new Agent/TCP]
+$ns attach-agent $n0 $tcp
+
+set sink [new Agent/TCPSink]
+$ns attach-agent $n2 $sink
+
+$ns connect $tcp $sink
+
+
+# CBR traffic
+set cbr [new Application/Traffic/CBR]
+$cbr set packetSize_ 100
+$cbr set rate_ 1Mb
+$cbr attach-agent $tcp
+
+
+# Start/stop time
+$ns at 0.0 "$cbr start"
+$ns at 5.0 "finish"
+
+
+# Run simulation
+$ns run
